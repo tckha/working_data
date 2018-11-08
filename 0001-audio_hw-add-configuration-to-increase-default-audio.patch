@@ -1,0 +1,79 @@
+From 791431d07e579f3fa318e941391161f52446c044 Mon Sep 17 00:00:00 2001
+From: khatran <kha.tran.px@renesas.com>
+Date: Thu, 8 Nov 2018 11:19:03 +0700
+Subject: [PATCH] audio_hw: add configuration to increase default audio volume
+
+Some configuration for audio is missing. By default, it was set
+to minimum. This patch just change and add default value for all
+neccessary configuration.
+
+Signed-off-by: khatran <kha.tran.px@renesas.com>
+---
+ audio/audio_hw.c | 27 ++++++++++++++++++++++-----
+ 1 file changed, 22 insertions(+), 5 deletions(-)
+
+diff --git a/audio/audio_hw.c b/audio/audio_hw.c
+index 9fb2b8a..9d8d7a1 100644
+--- a/audio/audio_hw.c
++++ b/audio/audio_hw.c
+@@ -45,6 +45,8 @@
+ #define MIXER_PLAY_VOL              "PCM Playback Volume"
+ #define MIXER_LINE_OUT              "Lineout Playback Volume"
+ #define MIXER_HP_OUT                "Headphone Playback Volume"
++#define MIXER_CAP_IN                "Capture Volume"
++#define MIXER_MIC_IN                "Mic Volume"
+ #ifdef KERNEL34
+ #define MIXER_SSI0                  "SSI0 Control"
+ #define MIXER_SSI1                  "SSI1 Control"
+@@ -58,13 +60,16 @@
+ #endif  /* !KERNEL34 */
+ 
+ /* GEN2 mixer values */
+-#define MIXER_PLAY_V_DEFAULT        231
++#define MIXER_PLAY_V_DEFAULT        150
+ 
+-#define MIXER_PLAY_V_MAX            255
++#define MIXER_PLAY_V_MAX            192
++#define MIXER_HP_V_DEFAULT	    127
++#define MIXER_CAP_V_DEFAULT	    15
++#define MIXER_MIC_V_DEFAULT	    3
+ 
+ #ifndef KERNEL34
+-#define MIXER_DVC_PLAY_V_DEFAULT    12
+-#define MIXER_DVC_CAP_V_DEFAULT     12
++#define MIXER_DVC_PLAY_V_DEFAULT    400000
++#define MIXER_DVC_CAP_V_DEFAULT     400000
+ #endif  /* !KERNEL34 */
+ 
+ /* HDMI mixer controls */
+@@ -158,6 +163,18 @@ struct route_setting defaults[] = {
+         .ctl_name = MIXER_DVC_CAP_VOL,
+         .intval = MIXER_DVC_CAP_V_DEFAULT,
+     },
++    {
++        .ctl_name = MIXER_HP_OUT,
++        .intval = MIXER_HP_V_DEFAULT,
++    },
++    {
++        .ctl_name = MIXER_CAP_IN,
++        .intval = MIXER_CAP_V_DEFAULT,
++    },
++    {
++        .ctl_name = MIXER_MIC_IN,
++        .intval = MIXER_MIC_V_DEFAULT,
++    },
+ #endif /* !KERNEL34 */
+     {
+         .ctl_name = NULL,
+@@ -352,7 +369,7 @@ static void select_output_device(struct gen2_audio_device *adev)
+     ALOGV("%s",__FUNCTION__);
+ 
+     mixer_ctl_set_value(adev->mixer_ctls.line_out, 0, 1);
+-    mixer_ctl_set_value(adev->mixer_ctls.hp_out, 0, 0);
++    mixer_ctl_set_value(adev->mixer_ctls.hp_out, 127, 0);
+ 
+ #ifdef KERNEL34
+     mixer_ctl_set_value(adev->mixer_ctls.ssi0, 0, 1);
+-- 
+2.7.4
+
